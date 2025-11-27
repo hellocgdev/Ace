@@ -27,7 +27,7 @@ app.use(
       "http://localhost:5173",
       "https://leadersfirst-frontend.onrender.com",
       "https://ace-frontend-ta0j.onrender.com",
-      "https://www.theleadersfirst.com/",
+      "https://www.theleadersfirst.com",
     ],
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     allowedHeaders: ["Content-Type", "Authorization"],
