@@ -58,6 +58,14 @@ router.get(
   articleController.getArticleSecureById
 );
 
+// delete (author/admin)
+router.delete(
+  "/:id",
+  requireAuth,
+  requireRole("author", "admin"),
+  articleController.deleteArticle
+);
+
 // public (these must be last)
 router.get("/", articleController.getPublishedArticles);
 router.get("/:id", articleController.getPublishedArticleById);

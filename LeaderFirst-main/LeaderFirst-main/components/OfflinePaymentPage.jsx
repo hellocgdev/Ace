@@ -3,8 +3,8 @@ import { useLocation } from "react-router-dom";
 
 const PLAN_AMOUNT = {
   contributor: 52,
-  core: 160,
-  enterprise: 106,
+  core: 106,
+  enterprise: 160,
 };
 
 const OfflinePaymentPage = () => {
@@ -100,7 +100,7 @@ const OfflinePaymentPage = () => {
             Bank Transfer Details
           </h2>
           <p className="text-sm text-gray-600 leading-relaxed">
-            Please pay <b>₹{amount}</b> for the <b>{displayPlanName} plan</b>{" "}
+            Please pay <b>${amount}</b> for the <b>{displayPlanName} plan</b>{" "}
             using the bank details or QR code below, then submit the form with
             your transaction reference so our team can verify it.
           </p>
@@ -124,7 +124,7 @@ const OfflinePaymentPage = () => {
           <div>
             <p className="text-sm text-gray-600 mb-2">Scan to pay:</p>
             <img
-              src="/public/CG_GROUP_PAYMENT_QR.jpg"
+              src="/CG_GROUP_PAYMENT_QR.jpg"
               alt="Company payment QR"
               className="w-40 h-40 border rounded-md"
             />
@@ -166,7 +166,7 @@ const OfflinePaymentPage = () => {
 
             <div>
               <label className="block mb-1 font-medium text-gray-800">
-                Amount Paid (INR)
+                Amount Paid (USD)
               </label>
               <input
                 className="w-full border rounded px-3 py-2 bg-gray-100 text-gray-700"

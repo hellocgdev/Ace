@@ -249,6 +249,29 @@ const getArticleSecureById = async (req, res) => {
     res.status(500).json({ message: "Failed to load article" });
   }
 };
+// Delete article (admin or owning author)
+const deleteArticle = async (req, res) => {
+  try {
+    const article = await Article.findById(req.params.id);
+    if (!article) {
+      return res.status(404).json({ message: "Not found" });
+    }
+
+    const isAuthor = article.author.toString() === req.user._id.toString();
+
+    // authors can delete only their own; admins can delete any
+    if (req.user.role === "author" && !isAuthor) {
+      return res.status(403).json({ message: "Not your article" });
+    }
+
+    await article.deleteOne();
+
+    return res.json({ message: "Article deleted successfully" });
+  } catch (err) {
+    console.error("deleteArticle error:", err);
+    return res.status(500).json({ message: "Failed to delete article" });
+  }
+};
 
 export default {
   createArticle,
@@ -260,4 +283,5 @@ export default {
   getPublishedArticles,
   getPublishedArticleById,
   getArticleSecureById,
+  deleteArticle,
 };

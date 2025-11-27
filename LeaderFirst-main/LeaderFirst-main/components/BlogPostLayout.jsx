@@ -108,7 +108,7 @@ const BlogPostLayout = ({
       const scrollPosition = window.scrollY;
       const viewportHeight = window.innerHeight;
       // Trigger after just 100px scroll or if content is short
-      const triggerPoint = 100; 
+      const triggerPoint = 100;
 
       if (scrollPosition >= triggerPoint && !showSecondImage) {
         setShowSecondImage(true);
@@ -118,7 +118,7 @@ const BlogPostLayout = ({
     window.addEventListener("scroll", handleScroll);
     // Check immediately on mount
     handleScroll();
-    
+
     return () => window.removeEventListener("scroll", handleScroll);
   }, [images, showSecondImage]);
 
@@ -283,7 +283,7 @@ const BlogPostLayout = ({
                 />
               </div>
             ) : (
-                <>
+              <>
                 <p className="text-brand-teal font-semibold uppercase tracking-wider text-xs mb-2">
                   {category}
                 </p>
@@ -313,14 +313,14 @@ const BlogPostLayout = ({
                   />
                 ) : null}
               </div>
-              
+
               {/* Article content below image */}
               <div>
                 <div
                   className="article-content"
                   dangerouslySetInnerHTML={{ __html: content }}
                 />
-                
+
                 {/* Second Image - appears after scrolling (small scroll) */}
                 {images && images.length >= 2 && showSecondImage && (
                   <div className="my-8 animate-fade-in">
@@ -340,7 +340,10 @@ const BlogPostLayout = ({
                     </h4>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                       {images.slice(2).map((img, idx) => (
-                        <div key={idx} className="overflow-hidden rounded-lg shadow-sm">
+                        <div
+                          key={idx}
+                          className="overflow-hidden rounded-lg shadow-sm"
+                        >
                           <img
                             src={img.url}
                             alt={img.alt || `${title} - image ${idx + 3}`}
