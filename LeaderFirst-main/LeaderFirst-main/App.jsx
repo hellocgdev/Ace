@@ -32,6 +32,7 @@ import AdminDashboard from "./components/AdminDashboard";
 import PaymentPage from "./components/Payment";
 import StripeCheckoutPage from "./components/StripeCheckoutPage";
 import OfflinePaymentPage from "./components/OfflinePaymentPage";
+import AdminArticlePreviewPage from "./components/AdminArticlePreviewPage";
 
 ReactGA.initialize("G-B1FEECPXJ6");
 // ReactGA.initialize("");
@@ -127,6 +128,10 @@ function AppInner() {
           <Route path="/donation-success" element={<DonationSuccessPage />} />
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
           <Route path="/author-dashboard" element={<AuthorDashboardPage />} />
+          <Route
+            path="/admin/article/:id"
+            element={<AdminArticlePreviewPage />}
+          />
 
           {/* Pass the token prop here */}
           <Route path="*" element={<Navigate to="/" replace />} />

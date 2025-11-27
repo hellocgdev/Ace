@@ -50,19 +50,16 @@ const AdminDashboardPage = () => {
     setInfo("");
 
     try {
-      const res = await fetch(
-        `${baseUrl}/api/articles/${articleId}/moderate`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(
-            action === "reject" ? { action, reason } : { action }
-          ),
-        }
-      );
+      const res = await fetch(`${baseUrl}/api/articles/${articleId}/moderate`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(
+          action === "reject" ? { action, reason } : { action }
+        ),
+      });
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Moderation failed");
@@ -107,8 +104,7 @@ const AdminDashboardPage = () => {
 
     let adminComment = "";
     if (action === "reject") {
-      adminComment =
-        window.prompt("Enter rejection reason (optional):") || "";
+      adminComment = window.prompt("Enter rejection reason (optional):") || "";
     }
 
     setReviewingPaymentId(paymentId);
@@ -140,9 +136,7 @@ const AdminDashboardPage = () => {
           ? "Payment approved and plan activated."
           : "Payment rejected."
       );
-      setPendingPayments((prev) =>
-        prev.filter((p) => p._id !== paymentId)
-      );
+      setPendingPayments((prev) => prev.filter((p) => p._id !== paymentId));
     } catch (err) {
       setError(err.message || "Failed to review payment");
     } finally {
@@ -254,26 +248,21 @@ const AdminDashboardPage = () => {
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0">
                     <button
-                      onClick={() => navigate(`/blog/${article._id}`)}
+                      onClick={() => navigate(`/admin/article/${article._id}`)}
                       className="px-2 py-1 text-xs text-gray-600 hover:text-gray-900"
                     >
                       View
                     </button>
+
                     <button
-                      onClick={() =>
-                        handleModerate(article._id, "reject")
-                      }
+                      onClick={() => handleModerate(article._id, "reject")}
                       disabled={moderatingId === article._id}
                       className="px-3 py-1 text-xs font-semibold rounded-md border border-red-300 text-red-600 hover:bg-red-50 disabled:opacity-50"
                     >
-                      {moderatingId === article._id
-                        ? "Rejecting..."
-                        : "Reject"}
+                      {moderatingId === article._id ? "Rejecting..." : "Reject"}
                     </button>
                     <button
-                      onClick={() =>
-                        handleModerate(article._id, "publish")
-                      }
+                      onClick={() => handleModerate(article._id, "publish")}
                       disabled={moderatingId === article._id}
                       className="px-3 py-1 text-xs font-semibold rounded-md bg-green-600 text-white hover:bg-green-700 disabled:opacity-50"
                     >
@@ -330,26 +319,19 @@ const AdminDashboardPage = () => {
                       Txn ID: <span className="font-mono">{p.txId}</span>
                     </p>
                     {p.bankName && (
-                      <p className="text-gray-500">
-                        Bank / UPI: {p.bankName}
-                      </p>
+                      <p className="text-gray-500">Bank / UPI: {p.bankName}</p>
                     )}
                     {p.paymentDate && (
                       <p className="text-gray-500">
                         Date:{" "}
-                        {new Date(p.paymentDate).toLocaleDateString(
-                          "en-IN",
-                          {
-                            day: "2-digit",
-                            month: "short",
-                            year: "numeric",
-                          }
-                        )}
+                        {new Date(p.paymentDate).toLocaleDateString("en-IN", {
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric",
+                        })}
                       </p>
                     )}
-                    {p.note && (
-                      <p className="text-gray-500">Note: {p.note}</p>
-                    )}
+                    {p.note && <p className="text-gray-500">Note: {p.note}</p>}
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0">
                     <button
@@ -357,9 +339,7 @@ const AdminDashboardPage = () => {
                       disabled={reviewingPaymentId === p._id}
                       className="px-3 py-1 text-xs font-semibold rounded-md border border-red-300 text-red-600 hover:bg-red-50 disabled:opacity-50"
                     >
-                      {reviewingPaymentId === p._id
-                        ? "Rejecting..."
-                        : "Reject"}
+                      {reviewingPaymentId === p._id ? "Rejecting..." : "Reject"}
                     </button>
                     <button
                       onClick={() => handleReviewPayment(p._id, "approve")}

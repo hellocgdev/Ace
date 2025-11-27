@@ -87,7 +87,7 @@ const MenuBar = React.memo(({ editor, onImageSelect }) => {
         S
       </button>
 
-      <div className="w-px bg-gray-300 h-5 mx-1"></div>
+      <div className="w-px bg-gray-300 h-5 mx-1" />
 
       <button
         className="p-1.5 hover:bg-gray-100 rounded text-xs font-bold"
@@ -130,7 +130,7 @@ const MenuBar = React.memo(({ editor, onImageSelect }) => {
         H3
       </button>
 
-      <div className="w-px bg-gray-300 h-5 mx-1"></div>
+      <div className="w-px bg-gray-300 h-5 mx-1" />
 
       <button
         className="p-1.5 hover:bg-gray-100 rounded"
@@ -153,7 +153,7 @@ const MenuBar = React.memo(({ editor, onImageSelect }) => {
         1.
       </button>
 
-      <div className="w-px bg-gray-300 h-5 mx-1"></div>
+      <div className="w-px bg-gray-300 h-5 mx-1" />
 
       <label
         className="p-1.5 hover:bg-gray-100 rounded cursor-pointer"
@@ -180,7 +180,7 @@ const MenuBar = React.memo(({ editor, onImageSelect }) => {
         🔗
       </button>
 
-      <div className="w-px bg-gray-300 h-5 mx-1"></div>
+      <div className="w-px bg-gray-300 h-5 mx-1" />
 
       <button
         className="p-1.5 hover:bg-gray-100 rounded text-xs text-gray-600"
@@ -224,8 +224,7 @@ const UploadArticlePage = () => {
   const [showPreview, setShowPreview] = useState(false);
   const [showPaywall, setShowPaywall] = useState(false);
 
-  // Featured leader (optional)
-  const [selectedLeader, setSelectedLeader] = useState(""); // manual text or ID
+  const [selectedLeader, setSelectedLeader] = useState("");
 
   const [publishedAt] = useState(() => {
     const now = new Date();
@@ -253,7 +252,6 @@ const UploadArticlePage = () => {
     content: "",
   });
 
-  // Fetch own / all articles for sidebar
   useEffect(() => {
     if ((!isAdmin && !isAuthor) || !token || hasLoadedArticles.current) return;
 
@@ -274,7 +272,6 @@ const UploadArticlePage = () => {
     })();
   }, [isAdmin, isAuthor, token]);
 
-  // Load article for editing
   useEffect(() => {
     if (!editId || !token) return;
 
@@ -316,7 +313,7 @@ const UploadArticlePage = () => {
       const file =
         blobOrFile instanceof File
           ? blobOrFile
-          : new File([blobOrFile], name, {
+          : new File([blobOrFile], name || "image.png", {
               type: blobOrFile.type || "image/png",
             });
 
@@ -328,13 +325,15 @@ const UploadArticlePage = () => {
         body: formData,
       });
 
-      if (!res.ok) {
-        const errJson = await res.json().catch(() => ({}));
-        throw new Error(errJson.message || `Upload failed (${res.status})`);
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok || !data.url) {
+        console.error("Image upload failed:", res.status, data);
+        return "";
       }
 
-      const data = await res.json();
-      return data.url || "";
+      console.log("Image uploaded URL:", data.url);
+      return data.url;
     } catch (err) {
       console.error("Upload error:", err);
       return "";
@@ -437,9 +436,22 @@ const UploadArticlePage = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const url = await uploadImageToServer(file, file.name);
-    if (url) editor?.chain().focus().setImage({ src: url }).run();
-    else setError("❌ Failed to upload image");
+    let url = await uploadImageToServer(file, file.name);
+
+    if (!url) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const dataUrl = reader.result;
+        if (dataUrl) {
+          editor?.chain().focus().setImage({ src: dataUrl }).run();
+        } else {
+          setError("❌ Failed to read image file");
+        }
+      };
+      reader.readAsDataURL(file);
+    } else {
+      editor?.chain().focus().setImage({ src: url }).run();
+    }
 
     if (contentImageInputRef.current) contentImageInputRef.current.value = "";
   };
@@ -499,74 +511,76 @@ const UploadArticlePage = () => {
 
   const handleDragLeave = useCallback(() => setIsDragOver(false), []);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-    setSuccess("");
-
+  const buildPayload = async (status) => {
     const content = editor?.getHTML() || "";
     const plainTextContent = editor?.getText().trim() || "";
     const titleValue = title.trim();
     const labelsValue = labels.trim();
 
     if (!titleValue || !labelsValue || !plainTextContent) {
-      setError("❌ Please fill: Title, Labels, and Content");
-      return;
+      throw new Error("Please fill: Title, Labels, and Content");
     }
 
-    setIsUploading(true);
+    const baseUrl = import.meta.env.VITE_API_BASE;
 
-    try {
-      const baseUrl = import.meta.env.VITE_API_BASE;
-
-      let thumbnailData = {};
-      if (thumbnailFile) {
-        const thumbFormData = new FormData();
-        thumbFormData.append("thumbnail", thumbnailFile);
-        const thumbRes = await fetch(`${baseUrl}/api/upload/thumbnail`, {
-          method: "POST",
-          headers: { Authorization: `Bearer ${token}` },
-          body: thumbFormData,
-        });
-        if (thumbRes.ok) {
-          thumbnailData = await thumbRes.json();
-        }
+    let thumbnailData = {};
+    if (thumbnailFile) {
+      const thumbFormData = new FormData();
+      thumbFormData.append("thumbnail", thumbnailFile);
+      const thumbRes = await fetch(`${baseUrl}/api/upload/thumbnail`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: thumbFormData,
+      });
+      if (thumbRes.ok) {
+        thumbnailData = await thumbRes.json();
       }
+    }
 
-      const uploadedImages = [];
-      for (const imageFile of additionalImages) {
-        const imgFormData = new FormData();
-        imgFormData.append("thumbnail", imageFile);
-        const imgRes = await fetch(`${baseUrl}/api/upload/thumbnail`, {
-          method: "POST",
-          headers: { Authorization: `Bearer ${token}` },
-          body: imgFormData,
+    const uploadedImages = [];
+    for (const imageFile of additionalImages) {
+      const imgFormData = new FormData();
+      imgFormData.append("thumbnail", imageFile);
+      const imgRes = await fetch(`${baseUrl}/api/upload/thumbnail`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: imgFormData,
+      });
+      if (imgRes.ok) {
+        const imgData = await imgRes.json();
+        uploadedImages.push({
+          url: imgData.url,
+          publicId: imgData.publicId,
+          alt: titleValue,
         });
-        if (imgRes.ok) {
-          const imgData = await imgRes.json();
-          uploadedImages.push({
-            url: imgData.url,
-            publicId: imgData.publicId,
+      }
+    }
+
+    return {
+      title: titleValue,
+      content,
+      category: labelsValue,
+      thumbnail: thumbnailData.url
+        ? {
+            url: thumbnailData.url,
+            publicId: thumbnailData.publicId,
             alt: titleValue,
-          });
-        }
-      }
+          }
+        : undefined,
+      images: uploadedImages,
+      status,
+      leaderFeatured: selectedLeader || undefined,
+    };
+  };
 
-      const baseBody = {
-        title: titleValue,
-        content,
-        category: labelsValue,
-        thumbnail: thumbnailData.url
-          ? {
-              url: thumbnailData.url,
-              publicId: thumbnailData.publicId,
-              alt: titleValue,
-            }
-          : undefined,
-        images: uploadedImages,
-        status: isAdmin ? "published" : "pending",
-        leaderFeatured: selectedLeader || undefined,
-      };
+  const saveArticle = async (status, successMessage, failureMessage) => {
+    try {
+      setIsUploading(true);
+      setError("");
+      setSuccess("");
+
+      const baseUrl = import.meta.env.VITE_API_BASE;
+      const body = await buildPayload(status);
 
       const url = editId
         ? `${baseUrl}/api/articles/${editId}`
@@ -579,7 +593,7 @@ const UploadArticlePage = () => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(baseBody),
+        body: JSON.stringify(body),
       });
 
       const data = await res.json();
@@ -593,136 +607,54 @@ const UploadArticlePage = () => {
             return open;
           });
         }, 5000);
-        setIsUploading(false);
         return;
       }
 
       if (res.ok) {
-        setSuccess(
-          isAdmin
-            ? "✅ Article published successfully!"
-            : "✅ Article sent for review!"
-        );
-        setTitle("");
-        setLabels("");
-        setThumbnailFile(null);
-        setThumbnailPreview("");
-        setAdditionalImages([]);
-        setAdditionalImagePreviews([]);
-        setSelectedLeader("");
-        editor?.commands.setContent("");
+        setSuccess(successMessage);
         const created = data.data || data;
-        setAllArticles((prev) => (created ? [created, ...prev] : prev));
-        setTimeout(
-          () => navigate(isAdmin ? "/dashboard/admin" : "/dashboard/author"),
-          1500
-        );
+        if (status !== "draft") {
+          setTitle("");
+          setLabels("");
+          setThumbnailFile(null);
+          setThumbnailPreview("");
+          setAdditionalImages([]);
+          setAdditionalImagePreviews([]);
+          setSelectedLeader("");
+          editor?.commands.setContent("");
+          setAllArticles((prev) => (created ? [created, ...prev] : prev));
+          setTimeout(
+            () => navigate(isAdmin ? "/dashboard/admin" : "/dashboard/author"),
+            1500
+          );
+        } else {
+          setAllArticles((prev) => (created ? [created, ...prev] : prev));
+        }
       } else {
-        setError(`${data.message || "Failed to publish"}`);
+        setError(data.message || failureMessage);
       }
-    } catch (error) {
-      setError(`Error: ${error.message}`);
+    } catch (err) {
+      setError(err.message || failureMessage);
     } finally {
       setIsUploading(false);
     }
   };
 
-  const handleSaveDraft = async () => {
-    setError("");
-    setSuccess("");
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    saveArticle(
+      "pending",
+      "✅ Article sent for review!",
+      "Failed to send for review"
+    );
+  };
 
-    const content = editor?.getHTML() || "";
-    const plainTextContent = editor?.getText().trim() || "";
-    const titleValue = title.trim();
-    const labelsValue = labels.trim();
-
-    if (!titleValue || !labelsValue || !plainTextContent) {
-      setError("❌ Please fill: Title, Labels, and Content");
-      return;
-    }
-
-    setIsUploading(true);
-
-    try {
-      const baseUrl = import.meta.env.VITE_API_BASE;
-
-      let thumbnailData = {};
-      if (thumbnailFile) {
-        const thumbFormData = new FormData();
-        thumbFormData.append("thumbnail", thumbnailFile);
-        const thumbRes = await fetch(`${baseUrl}/api/upload/thumbnail`, {
-          method: "POST",
-          headers: { Authorization: `Bearer ${token}` },
-          body: thumbFormData,
-        });
-        if (thumbRes.ok) {
-          thumbnailData = await thumbRes.json();
-        }
-      }
-
-      const uploadedImages = [];
-      for (const imageFile of additionalImages) {
-        const imgFormData = new FormData();
-        imgFormData.append("thumbnail", imageFile);
-        const imgRes = await fetch(`${baseUrl}/api/upload/thumbnail`, {
-          method: "POST",
-          headers: { Authorization: `Bearer ${token}` },
-          body: imgFormData,
-        });
-        if (imgRes.ok) {
-          const imgData = await imgRes.json();
-          uploadedImages.push({
-            url: imgData.url,
-            publicId: imgData.publicId,
-            alt: titleValue,
-          });
-        }
-      }
-
-      const baseBody = {
-        title: titleValue,
-        content,
-        category: labelsValue,
-        thumbnail: thumbnailData.url
-          ? {
-              url: thumbnailData.url,
-              publicId: thumbnailData.publicId,
-              alt: titleValue,
-            }
-          : undefined,
-        images: uploadedImages,
-        status: "draft",
-        leaderFeatured: selectedLeader || undefined,
-      };
-
-      const url = editId
-        ? `${baseUrl}/api/articles/${editId}`
-        : `${baseUrl}/api/articles`;
-      const method = editId ? "PATCH" : "POST";
-
-      const res = await fetch(url, {
-        method,
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(baseBody),
-      });
-
-      const data = await res.json();
-
-      if (res.ok) {
-        setSuccess("✅ Draft saved successfully!");
-        const created = data.data || data;
-        setAllArticles((prev) => (created ? [created, ...prev] : prev));
-      } else {
-        setError(data.message || "Failed to save draft");
-      }
-    } catch (err) {
-      setError(`Error: ${err.message}`);
-    } finally {
-      setIsUploading(false);
-    }
+  const handleSaveDraft = () => {
+    saveArticle(
+      "draft",
+      "✅ Draft saved successfully!",
+      "Failed to save draft"
+    );
   };
 
   if (!isAdmin && !isAuthor) {
@@ -776,13 +708,7 @@ const UploadArticlePage = () => {
               disabled={isUploading || processingDocx}
               className="bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white rounded px-6 py-1.5 font-semibold text-sm shadow-md transition"
             >
-              {isAdmin
-                ? isUploading
-                  ? "Publishing..."
-                  : "Publish"
-                : isUploading
-                ? "Sending..."
-                : "Send for review"}
+              {isUploading ? "Sending..." : "Send for review"}
             </button>
           </div>
         </div>
@@ -898,13 +824,7 @@ const UploadArticlePage = () => {
               disabled={isUploading || processingDocx}
               className="flex-1 bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white px-3 py-2 rounded font-semibold text-sm shadow-md transition"
             >
-              {isAdmin
-                ? isUploading
-                  ? "Publishing..."
-                  : "Publish"
-                : isUploading
-                ? "Sending..."
-                : "Send for review"}
+              {isUploading ? "Sending..." : "Send for review"}
             </button>
           </div>
 
@@ -1020,7 +940,7 @@ const UploadArticlePage = () => {
             </select>
           </div>
 
-          {/* Featured Leader (optional, manual entry) */}
+          {/* Featured Leader */}
           <div className="space-y-2">
             <label className="block font-bold text-xs text-gray-700 uppercase tracking-wider">
               Featured Leader (optional)
