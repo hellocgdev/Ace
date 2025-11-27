@@ -12,6 +12,7 @@ import adminRoute from "./routes/adminRoutes.js";
 import stripeWebhookRouter from "./routes/stripeWebhook.js";
 import paymentRequestRoutes from "./routes/paymentRequestRoutes.js";
 import newsletterRoutes from "./routes/newsletterRoutes.js";
+import enterpriseRoutes from "./routes/enterpriseRoutes.js";
 
 dotenv.config();
 
@@ -65,6 +66,7 @@ app.use("/api/admin", adminRoute);
 app.use("/api/stripe", stripeWebhookRouter);
 app.use("/api/offline-payments", paymentRequestRoutes);
 app.use("/api/newsletter", newsletterRoutes);
+app.use("/api/enterprise", enterpriseRoutes);
 
 // 9. 404 handler
 app.use((req, res) => {

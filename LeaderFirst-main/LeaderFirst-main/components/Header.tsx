@@ -354,7 +354,7 @@ const Header = ({ currentUser, onLogout }) => {
             {/* Logo */}
             <Link to="/" className="shrink-0 group">
               <span className="text-xl pl-10 md:text-3xl font-serif font-semibold text-gray-900 tracking-tight group-hover:opacity-80 transition-opacity">
-                Ace
+                Leadersfirst
               </span>
             </Link>
             {/* Desktop Nav - Relative for Dropdown Positioning */}

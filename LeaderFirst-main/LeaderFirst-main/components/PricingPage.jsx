@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { CheckMarkIcon, BrainIcon } from "./icons/Icons";
 import PaymentGatewayPage from "./PaymentGatewayPage";
 import OfferPopup from "./OfferPopUp";
+import EnterpriseContactForm from "./EnterpriseContactForm";
 
 const plansData = [
   {
@@ -29,31 +30,6 @@ const plansData = [
       "Advanced controls and support to run your entire organization.",
   },
 ];
-
-const featureData = [
-  {
-    category: "Content",
-    features: [
-      {
-        name: "Pages & blocks",
-        values: ["Unlimited", "Unlimited", "Unlimited"],
-      },
-      { name: "File uploads", values: ["Unlimited", "Unlimited", "Unlimited"] },
-    ],
-  },
-];
-
-// const faqsData = [
-//   {
-//     question: "What is a 'Core Group'?",
-//     answer:
-//       "A Core Group is your personal board of directors. It's a curated group of 8 non-competing founders at a similar stage of growth, led by a professional executive coach.",
-//   },
-//   {
-//     question: "Can I switch plans later?",
-//     answer: "Absolutely. You can upgrade or downgrade your plan at any time.",
-//   },
-// ];
 
 const FaqItem = ({ question, answer }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -107,13 +83,13 @@ const PricingPage = () => {
   const [selectedPlan, setSelectedPlan] = useState(null);
   const navigate = useNavigate();
   const [showOffer, setShowOffer] = useState(false);
+  const [showEnterpriseForm, setShowEnterpriseForm] = useState(false);
 
   useEffect(() => {
-    // Prevent repeat during the same tab session
     const dismissed = sessionStorage.getItem("offer:dismissed") === "1";
     if (dismissed) return;
 
-    const t = setTimeout(() => setShowOffer(true), 2000); // show after 2s
+    const t = setTimeout(() => setShowOffer(true), 2000);
     return () => clearTimeout(t);
   }, []);
 
@@ -146,15 +122,13 @@ const PricingPage = () => {
   }, []);
 
   const handleCtaClick = (planKey, plan) => {
-    // navigate to payment (Stripe checkout) and pass planKey in router state and query
     if (plan.price && plan.price.quarterly > 0) {
-      // include plan in query so the page works even if state is lost
       navigate(`/payment?plan=${encodeURIComponent(planKey)}`, {
         state: { planKey },
       });
       console.debug("Navigating to payment for plan:", planKey);
     } else {
-      alert("Contact us for Enterprise plan");
+      setShowEnterpriseForm(true);
     }
   };
 
@@ -169,48 +143,41 @@ const PricingPage = () => {
     document.body.style.overflow = "auto";
   };
 
+  // Pricing logic with 90% discount and AI sections removed for non‑enterprise plans
   const getPlanDetails = (isDiscounted) => {
     const basePlans = {
       contributor: {
         name: "Contributor",
         cta: "Get started",
-        featuresIntro: "Everything in Free, plus:",
-        features: [
-          "Full access to all articles & resources",
-
-          "Member directory access",
-        ],
-        aiTitle: "Member Perks",
-        aiFeatures: [
-          "Full access to software discounts",
-          "Resource & template library",
-        ],
+        featuresIntro: "",
+        features: [],
+        aiTitle: "", // removed Member Perks block
+        aiFeatures: [],
         popular: false,
       },
       core: {
         name: "Core Group",
         cta: "Get started",
-        featuresIntro: "Everything in Core Group, plus:",
-        features: [
-          "Placement in a curated Core Group",
-          "Monthly facilitated peer group sessions",
-          "Annual in-person retreat",
-        ],
-        aiTitle: "Enhanced Privileges",
-        aiFeatures: ["Personalized growth plan", "Priority support"],
+        featuresIntro: "",
+        features: [],
+        aiTitle: "", // removed Enhanced Privileges block
+        aiFeatures: [],
         popular: true,
+      },
+      premium: {
+        name: "Premium",
+        cta: "Get started",
+        featuresIntro: "",
+        features: [],
+        aiTitle: "", // removed Premium Perks block
+        aiFeatures: [],
+        popular: false,
       },
       enterprise: {
         name: "Enterprise",
-        cta: "Get started",
-        featuresIntro: "Everything in Enterprise, plus:",
-        features: [
-          "Private Core Groups for your team",
-          "On-site workshops and training",
-          "Customized leadership curriculum",
-          "Dedicated success manager",
-          "White-glove onboarding for your org",
-        ],
+        cta: "Contact us",
+        featuresIntro: "",
+        features: [],
         aiTitle: "Enterprise Perks",
         aiFeatures: [
           "Volume discounts",
@@ -222,50 +189,75 @@ const PricingPage = () => {
       },
     };
 
+    // Current quarterly prices (already after discount)
+    const discounted = {
+      contributor: 52,
+      core: 106,
+      premium: 160,
+    };
+
+    const makePlan = (key, description, articlesPerQuarter) => {
+      const discountedPrice = discounted[key];
+      const originalPrice = discountedPrice * 10; // 90% off → original = 10x
+      return {
+        ...basePlans[key],
+        price: {
+          original: originalPrice,
+          quarterly: discountedPrice,
+        },
+        description,
+        articlesPerQuarter,
+      };
+    };
+
     if (isDiscounted) {
       return {
-        contributor: {
-          ...basePlans.contributor,
-          price: { quarterly: 52 },
-          description: "3 articles per quarter. Limited time 70% off!",
-          articlesPerQuarter: 3,
-        },
-        core: {
-          ...basePlans.core,
-          price: { quarterly: 106 },
-          description: "9 articles per quarter. Limited time 70% off!",
-          articlesPerQuarter: 9,
-        },
+        contributor: makePlan(
+          "contributor",
+          "3 articles per quarter. Limited time 90% off the regular price.",
+          3
+        ),
+        core: makePlan(
+          "core",
+          "9 articles per quarter. Limited time 90% off the regular price.",
+          9
+        ),
+        premium: makePlan(
+          "premium",
+          "12 articles per quarter. Limited time 90% off the regular price.",
+          12
+        ),
         enterprise: {
           ...basePlans.enterprise,
-          price: { quarterly: 160 },
-          description: "15 articles per quarter. Limited time 70% off!",
-          articlesPerQuarter: 15,
+          price: null,
+          description:
+            "Custom solutions tailored to your organization's needs.",
+          articlesPerQuarter: null,
         },
       };
     }
 
     return {
-      contributor: {
-        ...basePlans.contributor,
-        price: { quarterly: 174 },
-        description:
-          "2+1 articles per quarter. For active members seeking growth and connection.",
-        articlesPerQuarter: 3,
-      },
-      core: {
-        ...basePlans.core,
-        price: { quarterly: 354 },
-        description:
-          "7+2 articles per quarter. For dedicated founders seeking peer advisory.",
-        articlesPerQuarter: 9,
-      },
+      contributor: makePlan(
+        "contributor",
+        "2+1 articles per quarter. For active members seeking growth and connection.",
+        3
+      ),
+      core: makePlan(
+        "core",
+        "7+2 articles per quarter. For dedicated founders seeking peer advisory.",
+        9
+      ),
+      premium: makePlan(
+        "premium",
+        "10+2 articles per quarter. For leaders seeking maximum impact.",
+        12
+      ),
       enterprise: {
         ...basePlans.enterprise,
-        price: { quarterly: 534 },
-        description:
-          "12+3 articles per quarter. Custom solutions for leadership teams.",
-        articlesPerQuarter: 15,
+        price: null,
+        description: "Custom solutions for leadership teams and organizations.",
+        articlesPerQuarter: null,
       },
     };
   };
@@ -357,6 +349,14 @@ const PricingPage = () => {
           onPaymentSuccess={handlePaymentSuccess}
         />
       )}
+      {showEnterpriseForm && (
+        <EnterpriseContactForm
+          onClose={() => setShowEnterpriseForm(false)}
+          onSuccess={() =>
+            console.log("Enterprise form submitted successfully")
+          }
+        />
+      )}
 
       <section className="py-8 bg-gray-50">
         <div className="container mx-auto px-6">
@@ -377,7 +377,7 @@ const PricingPage = () => {
 
       <section className="py-10">
         <div className="container mx-auto px-6">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-8 items-start max-w-7xl mx-auto">
             {Object.entries(plans).map(([planKey, plan]) => (
               <div
                 key={plan.name}
@@ -397,11 +397,19 @@ const PricingPage = () => {
                 <h3 className="text-2xl font-bold text-brand-dark text-center mb-2">
                   {plan.name}
                 </h3>
-                <div className="text-center mb-6 h-16 flex items-center justify-center">
+                <div className="text-center mb-6 h-16 flex flex-col items-center justify-center">
                   {plan.price ? (
                     <div>
+                      {/* original price (before 90% discount) */}
+                      <p className="text-sm text-gray-400 line-through mb-1">
+                        ${plan.price.original}
+                      </p>
+                      {/* discounted price */}
                       <p className="text-5xl font-extrabold text-brand-dark">
                         ${plan.price.quarterly}
+                      </p>
+                      <p className="text-xs text-green-600 font-semibold mt-1">
+                        Limited time 90% off
                       </p>
                     </div>
                   ) : (
@@ -427,21 +435,9 @@ const PricingPage = () => {
                       {plan.featuresIntro}
                     </p>
                   )}
-                  <ul className="space-y-3">
-                    {plan.features.map((feature) => (
-                      <li key={feature} className="flex items-start">
-                        <CheckMarkIcon className="mt-1 mr-3 text-brand-dark" />
-                        <span className="text-sm text-gray-700">{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  <div className="mt-6">
-                    <div className="flex items-center text-brand-dark mb-4">
-                      <BrainIcon className="mr-3 w-6 h-6" />
-                      <p className="font-bold text-md">{plan.aiTitle}</p>
-                    </div>
+                  {plan.features.length > 0 && (
                     <ul className="space-y-3">
-                      {plan.aiFeatures.map((feature) => (
+                      {plan.features.map((feature) => (
                         <li key={feature} className="flex items-start">
                           <CheckMarkIcon className="mt-1 mr-3 text-brand-dark" />
                           <span className="text-sm text-gray-700">
@@ -450,82 +446,31 @@ const PricingPage = () => {
                         </li>
                       ))}
                     </ul>
-                  </div>
+                  )}
+                  {plan.aiTitle && plan.aiFeatures.length > 0 && (
+                    <div className="mt-6">
+                      <div className="flex items-center text-brand-dark mb-4">
+                        <BrainIcon className="mr-3 w-6 h-6" />
+                        <p className="font-bold text-md">{plan.aiTitle}</p>
+                      </div>
+                      <ul className="space-y-3">
+                        {plan.aiFeatures.map((feature) => (
+                          <li key={feature} className="flex items-start">
+                            <CheckMarkIcon className="mt-1 mr-3 text-brand-dark" />
+                            <span className="text-sm text-gray-700">
+                              {feature}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
           </div>
         </div>
       </section>
-
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <h2 className="text-4xl font-bold text-center mb-12">
-          Plans and features
-        </h2>
-        <div className="overflow-x-auto">
-          <div className="min-w-[900px] border border-gray-200 rounded-lg shadow-sm">
-            <div ref={headerRef} />
-            <div
-              className={`bg-gray-50 border-b border-gray-200 top-20 z-10 ${
-                isSticky ? "sticky shadow-md" : ""
-              }`}
-            >
-              <div className="grid grid-cols-4 gap-x-4 items-end p-6">
-                <div className="col-span-1"></div>
-                {plansData.map((plan, index) => (
-                  <div key={index} className="text-center px-2">
-                    <h3 className="font-bold text-lg text-brand-dark">
-                      {plan.name}
-                    </h3>
-                    <p className="text-sm text-gray-600 mt-1">
-                      <span className="font-bold text-black">{plan.price}</span>
-                      {plan.period && (
-                        <span className="text-xs block">{plan.period}</span>
-                      )}
-                    </p>
-                    <button className="mt-3 w-full bg-blue-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-blue-700 transition-colors text-sm shadow-sm">
-                      {plan.cta}
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="divide-y divide-gray-200 bg-white">
-              {featureData.map((categoryData) => (
-                <div key={categoryData.category}>
-                  <div className="bg-gray-50 px-6 py-3 border-y border-gray-200">
-                    <h4 className="font-bold text-gray-700 text-sm uppercase tracking-wider">
-                      {categoryData.category}
-                    </h4>
-                  </div>
-                  {categoryData.features.map((feature, idx) => (
-                    <div
-                      key={feature.name}
-                      className={`grid grid-cols-4 gap-x-4 items-center py-4 px-6 hover:bg-gray-50 transition-colors ${
-                        idx !== categoryData.features.length - 1
-                          ? "border-b border-gray-100"
-                          : ""
-                      }`}
-                    >
-                      <div className="col-span-1 text-sm text-gray-800 font-medium pr-4">
-                        <span>{feature.name}</span>
-                      </div>
-                      {feature.values.map((value, index) => (
-                        <div
-                          key={index}
-                          className="col-span-1 flex justify-center"
-                        >
-                          {renderFeatureValue(value)}
-                        </div>
-                      ))}
-                    </div>
-                  ))}
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   );
 };

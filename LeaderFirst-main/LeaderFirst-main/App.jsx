@@ -31,9 +31,9 @@ import AuthorDashboardPage from "./components/AuthorDashboardPage";
 import AdminDashboard from "./components/AdminDashboard";
 import PaymentPage from "./components/Payment";
 import StripeCheckoutPage from "./components/StripeCheckoutPage";
-import OfflinePaymentPage from "./components/OfflinePaymentPage"
+import OfflinePaymentPage from "./components/OfflinePaymentPage";
 
-// ReactGA.initialize("G-9FEM0FMWZY");
+ReactGA.initialize("G-B1FEECPXJ6");
 // ReactGA.initialize("");
 
 ReactGA.send({ hitType: "pageview", page: window.location.pathname });

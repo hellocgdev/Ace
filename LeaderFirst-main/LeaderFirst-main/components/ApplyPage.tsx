@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 
 const ROLE_OPTIONS = [
   { value: "individual", label: "Individual" },
-  { value: "author", label: "Author" },
   { value: "company", label: "Company" },
   { value: "agency", label: "Agency" },
   { value: "user", label: "Reader" },
@@ -18,7 +17,7 @@ const ApplyPage = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  // individual / author
+  // individual
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [location, setLocation] = useState("");
@@ -56,7 +55,7 @@ const ApplyPage = () => {
       return "Password must be at least 8 characters long.";
     }
 
-    if (selectedRole === "individual" || selectedRole === "author") {
+    if (selectedRole === "individual") {
       if (
         !firstName.trim() ||
         !lastName.trim() ||
@@ -141,7 +140,7 @@ const ApplyPage = () => {
         password,
       };
 
-      if (selectedRole === "individual" || selectedRole === "author") {
+      if (selectedRole === "individual") {
         Object.assign(payload, {
           firstName,
           lastName,
@@ -182,11 +181,6 @@ const ApplyPage = () => {
     setOtpLoading(false);
   };
 
-  const handleLoginClick = (e) => {
-    e.preventDefault();
-    navigate("/login");
-  };
-
   const prettyRole = ROLE_OPTIONS.find((r) => r.value === selectedRole)?.label;
 
   return (
@@ -199,7 +193,7 @@ const ApplyPage = () => {
                 Create an Account
               </h1>
               <p className="text-gray-600 mt-2 text-sm md:text-base">
-                Join as an Individual, Author, Company or Agency.
+                Join as an Individual, Company or Agency.
               </p>
             </div>
 
@@ -223,7 +217,7 @@ const ApplyPage = () => {
 
             <form onSubmit={handleSubmit} className="space-y-5">
               {/* Role-specific fields */}
-              {(selectedRole === "individual" || selectedRole === "author") && (
+              {selectedRole === "individual" && (
                 <>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>

@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
 
 const PLAN_AMOUNT = {
-  contributor: 174,
-  core: 354,
-  enterprise: 534,
+  contributor: 52,
+  core: 160,
+  enterprise: 106,
 };
 
 const OfflinePaymentPage = () => {
@@ -100,10 +100,9 @@ const OfflinePaymentPage = () => {
             Bank Transfer Details
           </h2>
           <p className="text-sm text-gray-600 leading-relaxed">
-            Please pay <b>₹{amount}</b> for the{" "}
-            <b>{displayPlanName} plan</b> using the bank details or QR code
-            below, then submit the form with your transaction reference so our
-            team can verify it.
+            Please pay <b>₹{amount}</b> for the <b>{displayPlanName} plan</b>{" "}
+            using the bank details or QR code below, then submit the form with
+            your transaction reference so our team can verify it.
           </p>
           <div className="border rounded-lg p-4 text-sm space-y-1 bg-gray-50">
             <p>
@@ -261,9 +260,9 @@ const OfflinePaymentPage = () => {
               Payment Under Review
             </h3>
             <p className="text-sm text-gray-600 mb-4">
-              Your payment details have been submitted. Our team will verify
-              the transaction and activate your {displayPlanName} plan once
-              the payment is confirmed.
+              Your payment details have been submitted. Our team will verify the
+              transaction and activate your {displayPlanName} plan once the
+              payment is confirmed.
             </p>
             <button
               onClick={() => setShowReviewModal(false)}
