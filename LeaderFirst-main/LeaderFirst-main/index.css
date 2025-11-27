@@ -1,0 +1,159 @@
+@import "tailwindcss";
+
+/* ===== GLOBAL PLAYFAIR DISPLAY APPLICATION ===== */
+
+/* Apply Playfair Display to ALL heading elements globally */
+h1, h2, h3, h4, h5, h6 {
+  font-family: "Playfair Display", serif !important;
+  font-weight: 500 !important;
+}
+
+/* Apply to all text elements with semibold or bold weight and size classes */
+.font-semibold {
+  font-family: "Playfair Display", serif !important;
+}
+
+.font-bold {
+  font-family: "Playfair Display", serif !important;
+}
+
+/* Large text sizes - force Playfair */
+.text-3xl,
+.text-4xl,
+.text-5xl,
+.text-6xl,
+.text-7xl,
+.text-8xl {
+  font-family: "Playfair Display", serif !important;
+}
+
+/* Apply to prose headings */
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4,
+.prose h5,
+.prose h6 {
+  font-family: "Playfair Display", serif !important;
+  font-weight: 500 !important;
+}
+
+/* Ensure article content headings use Playfair */
+.article-content h1,
+.article-content h2,
+.article-content h3,
+.article-content h4,
+.article-content h5,
+.article-content h6 {
+  font-family: "Playfair Display", serif !important;
+  font-weight: 500 !important;
+}
+
+/* Apply to title and brand elements */
+[class*="title"],
+[class*="heading"] {
+  font-family: "Playfair Display", serif !important;
+}
+
+/* Ensure images in TipTap editor display properly */
+.ProseMirror img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 1.5rem auto;
+  border-radius: 0.5rem;
+}
+
+/* Ensure images in article content display properly */
+.prose img,
+.article-content img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 1.5rem auto;
+  border-radius: 0.5rem;
+}
+
+/* Force images to display in editor and content */
+.ProseMirror img,
+.prose img,
+.article-content img,
+img[src^="https://res.cloudinary.com"]
+{
+  max-width: 100% !important;
+  height: auto !important;
+  display: block !important;
+  margin: 1.5rem auto !important;
+  border-radius: 0.5rem;
+  object-fit: contain;
+}
+
+/* Remove any broken image styling */
+img::before {
+  content: none !important;
+}
+
+img::after {
+  content: none !important;
+}
+
+/* Make article content clean & readable */
+.article-content {
+  font-family: "Poppins", sans-serif;
+  line-height: 1.75;
+}
+
+/* Improve paragraphs */
+.article-content p {
+  margin-bottom: 1.2rem;
+}
+
+/* Better headings - semi-bold with Playfair */
+.article-content h1,
+.article-content h2,
+.article-content h3 {
+  font-weight: 500;
+  font-family: "Playfair Display", serif;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  line-height: 1.3;
+}
+
+/* Apply Playfair to all font-semibold text elements that might be headings */
+.font-semibold {
+  font-family: "Playfair Display", serif;
+}
+
+/* Also apply to commonly used heading classes */
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4,
+.prose h5,
+.prose h6 {
+  font-family: "Playfair Display", serif !important;
+  font-weight: 500;
+}
+
+/* Bullet & Numbered lists */
+.article-content ul,
+.article-content ol {
+  padding-left: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+/* Keep images clean + fixed aspect ratio */
+.article-content img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  aspect-ratio: 16 / 9; /* <- adjustable if you want */
+  border-radius: 12px;
+  margin: 1.5rem 0;
+  display: block;
+}
+
+/* Avoid images that are too tall */
+.article-content img {
+  max-height: 440px;
+}

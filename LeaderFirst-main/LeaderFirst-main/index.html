@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Leaders First | Private Network for Founders</title>
+    <!-- <script src="https://cdn.tailwindcss.com"></script> -->
+     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lora:wght@400;700&family=Poppins:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      html {
+        scroll-behavior: smooth;
+      }
+      /* Custom styles for article content to ensure proper formatting */
+      .article-content h1,
+      .article-content h2,
+      .article-content h3,
+      .article-content h4 {
+        font-weight: 500; /* semi-bold */
+        font-family: "Playfair Display", serif;
+        margin-top: 1.75em;
+        margin-bottom: 1em;
+        line-height: 1.2;
+      }
+      .article-content h1 {
+        font-size: 2.25rem;
+      }
+      .article-content h2 {
+        font-size: 1.875rem;
+      }
+      .article-content h3 {
+        font-size: 1.5rem;
+      }
+      .article-content p {
+        margin-bottom: 1.25rem;
+        line-height: 1.75;
+      }
+      .article-content ul,
+      .article-content ol {
+        margin-bottom: 1.25rem;
+        padding-left: 1.75em;
+      }
+      .article-content li {
+        margin-bottom: 0.5rem;
+        padding-left: 0.25em;
+      }
+      .article-content ul {
+        list-style-type: disc;
+      }
+      .article-content ol {
+        list-style-type: decimal;
+      }
+      .article-content blockquote {
+        border-left: 4px solid #e5e7eb; /* gray-200 */
+        padding-left: 1rem;
+        margin: 1.5em 0;
+        font-style: italic;
+        color: #4b5563; /* gray-600 */
+      }
+      .article-content a {
+        color: #1b7a72; /* brand-teal */
+        text-decoration: underline;
+      }
+      .article-content strong {
+        font-weight: 700;
+      }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.7.0/mammoth.browser.min.js"></script>
+    <script>
+      if (typeof pdfjsLib !== "undefined") {
+        pdfjsLib.GlobalWorkerOptions.workerSrc =
+          "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.js";
+      }
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ["Poppins", "sans-serif"],
+              serif: ["Playfair Display", "serif"],
+              display: ["Playfair Display", "serif"],
+            },
+            colors: {
+              "brand-teal": "#1B7A72",
+              "brand-teal-dark": "#16635B",
+              "brand-dark": "#232323",
+              "brand-light-gray": "#F5F5F5",
+              "brand-text": "#333333",
+            },
+            animation: {
+              "fade-in": "fadeIn 0.5s ease-in-out",
+            },
+            keyframes: {
+              fadeIn: {
+                "0%": { opacity: "0" },
+                "100%": { opacity: "1" },
+              },
+            },
+          },
+        },
+      };
+    </script>
+    <script type="importmap">
+      {
+        "imports": {
+          "react": "https://aistudiocdn.com/react@^19.2.0",
+          "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+          "react/": "https://aistudiocdn.com/react@^19.2.0/",
+          "@google/genai": "https://aistudiocdn.com/@google/genai@^1.27.0"
+        }
+      }
+    </script>
+    <link rel="stylesheet" href="/index.css" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
