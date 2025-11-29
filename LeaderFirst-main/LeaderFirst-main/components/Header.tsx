@@ -144,7 +144,13 @@ const Header = ({ currentUser, onLogout }) => {
       >
         Blog
       </Link>
-
+      <Link
+        to="/horoscope"
+        className="text-md font-medium font-serif text-[#0D1126] hover:text-black transition-colors"
+      >
+        Horoscope
+      </Link>
+      
       {/* Mega Dropdown Trigger */}
       <div
         className="relative h-full flex items-center"
@@ -186,11 +192,6 @@ const Header = ({ currentUser, onLogout }) => {
         Contribute to Charity
       </Link>
 
-      {/* MEGA MENU PANEL 
-         - Added 'top-[calc(100%+0.5rem)]' for perfect spacing 
-         - Added 'backdrop-blur' transparency if desired, currently opaque white for crispness
-         - Added ring and shadow for depth
-      */}
       <div
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
@@ -265,6 +266,13 @@ const Header = ({ currentUser, onLogout }) => {
       )}
 
       <div className="flex items-center gap-4 text-md font-medium font-serif">
+        {/* Pricing visible to all users (logged in or not) */}
+        <Link
+          to="/pricing-page"
+          className="text-[#0D1126] hover:text-black transition-colors"
+        >
+          Pricing
+        </Link>
         {isUserAdmin && (
           <>
             <Link
@@ -278,12 +286,6 @@ const Header = ({ currentUser, onLogout }) => {
               className="text-[#0D1126] hover:text-black transition-colors"
             >
               Rephraser
-            </Link>
-            <Link
-              to="/pricing-page"
-              className="text-[#0D1126] hover:text-black transition-colors"
-            >
-              Pricing
             </Link>
           </>
         )}
@@ -354,11 +356,11 @@ const Header = ({ currentUser, onLogout }) => {
             {/* Logo */}
             <Link to="/" className="shrink-0 group">
               <span className="text-xl pl-10 md:text-3xl font-serif font-semibold text-gray-900 tracking-tight group-hover:opacity-80 transition-opacity">
-                Leadersfirst
+                Leaders First
               </span>
             </Link>
             {/* Desktop Nav - Relative for Dropdown Positioning */}
-            <nav className="hidden pl-30 lg:flex items-center gap-8 relative">
+            <nav className="hidden pl-10 lg:flex items-center gap-8 relative">
               {navLinks}
             </nav>
 
@@ -377,6 +379,16 @@ const Header = ({ currentUser, onLogout }) => {
             </div>
           </div>
         </div>
+        {/* Media & Partnership Banner */}
+        <div className="w-full mt-4  bg-gray-800 text-white text-center py-1 text-xs font-serif tracking-widest font-medium">
+          For Media-Partnership Queries & To Get Featured,{' '}
+          <Link
+            to="/pricing-page"
+            className="underline decoration-white/50 underline-offset-4 hover:decoration-white"
+          >
+            Click Here
+          </Link>
+        </div>
       </header>
 
       {/* Mobile Menu Overlay */}
@@ -394,25 +406,18 @@ const Header = ({ currentUser, onLogout }) => {
             ))}
             <hr className="border-gray-100" />
             <Link
-              to="/community"
-              onClick={() => setIsMenuOpen(false)}
-              className="text-lg font-medium font-serif text-gray-600"
-            >
-              Community
-            </Link>
-            <Link
-              to="/perks"
-              onClick={() => setIsMenuOpen(false)}
-              className="text-lg font-medium font-serif text-gray-600"
-            >
-              Perks
-            </Link>
-            <Link
               to="/blog"
               onClick={() => setIsMenuOpen(false)}
               className="text-lg font-medium font-serif text-gray-600"
             >
               Blog
+            </Link>
+            <Link
+              to="/pricing-page"
+              onClick={() => setIsMenuOpen(false)}
+              className="text-lg font-medium font-serif text-gray-600"
+            >
+              Pricing
             </Link>
             <Link
               to="/donations"
@@ -425,30 +430,11 @@ const Header = ({ currentUser, onLogout }) => {
           </nav>
         </div>
       )}
-
-      {/* Bottom Announcement Bar - Styled Premium */}
-      {/* Added padding-top to body implicitly via the fixed header, but here acts as a sticky bottom or standard bottom bar */}
       <div
         className={`fixed bottom-0 left-0 right-0 z-100 lg:top-[calc(100%-(--spacing(10)))] lg:bottom-auto transition-transform duration-300 ${
           isMenuOpen ? "hidden" : ""
         }`}
       >
-        {/* Note: Usually purely visual bottom bars aren't fixed in premium layouts, 
-             but sticking to your layout: Here is a cleaner version */}
-      </div>
-
-      {/* If you want the Red Banner to scroll WITH the page (standard) or be fixed at bottom? 
-          Your original code put it inside the header component but it looked like it was meant to be fixed or part of the flow. 
-          Here is a cleaner version placed just below the header logically if you render it there.
-      */}
-      <div className="hidden lg:block fixed bottom-0 w-full bg-gray-900 text-white text-center py-3 text-xs font-bold font-serif tracking-widest uppercase z-40">
-        <span className="opacity-80">Ready to share your insights?</span>
-        <Link
-          to="/pricing-page"
-          className="ml-2 text-white underline decoration-white/50 underline-offset-4 hover:decoration-white hover:text-white transition-all"
-        >
-          Post your first free article
-        </Link>
       </div>
     </>
   );

@@ -33,6 +33,7 @@ import PaymentPage from "./components/Payment";
 import StripeCheckoutPage from "./components/StripeCheckoutPage";
 import OfflinePaymentPage from "./components/OfflinePaymentPage";
 import AdminArticlePreviewPage from "./components/AdminArticlePreviewPage";
+import Horoscope from "./components/Horoscope";
 
 ReactGA.initialize("G-B1FEECPXJ6");
 // ReactGA.initialize("");
@@ -135,6 +136,7 @@ function AppInner() {
 
           {/* Pass the token prop here */}
           <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="/horoscope" element={<Horoscope />} />
         </Routes>
       </main>
       <Footer />

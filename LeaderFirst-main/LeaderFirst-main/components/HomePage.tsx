@@ -1,11 +1,7 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Insights from "./Insights";
-import CtaSection from "./CtaSection";
 import OfferPopup from "./OfferPopUp";
-import TrendingStrip from "./TrendingStrip";
-import EditorsPicks from "./EditorsPicks";
 import TodaysMix from "./TodaysMix";
-import Featured from "./Featured";
 import NewsLetterBand from "./NewsLetterBand";
 
 const HomePage = ({ posts, currentUser }) => {

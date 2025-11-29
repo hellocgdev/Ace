@@ -85,6 +85,19 @@ const PricingPage = () => {
   const [showOffer, setShowOffer] = useState(false);
   const [showEnterpriseForm, setShowEnterpriseForm] = useState(false);
 
+  // Auth state (lightweight check for gating CTA)
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  let storedUser = {};
+  if (typeof window !== "undefined") {
+    try {
+      storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+    } catch {
+      storedUser = {};
+    }
+  }
+  const isAuthed = !!token || !!storedUser?.email;
+
   useEffect(() => {
     const dismissed = sessionStorage.getItem("offer:dismissed") === "1";
     if (dismissed) return;
@@ -122,6 +135,12 @@ const PricingPage = () => {
   }, []);
 
   const handleCtaClick = (planKey, plan) => {
+    // Force login before proceeding to payment or enterprise contact
+    if (!isAuthed) {
+      navigate("/login", { state: { redirectTo: "/pricing-page" } });
+      return;
+    }
+
     if (plan.price && plan.price.quarterly > 0) {
       navigate(`/payment?plan=${encodeURIComponent(planKey)}`, {
         state: { planKey },

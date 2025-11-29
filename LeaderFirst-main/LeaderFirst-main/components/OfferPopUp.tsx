@@ -10,9 +10,9 @@ const CountdownUnit: React.FC<{ value: number; label: string }> = ({
   value,
   label,
 }) => (
-  <div className="bg-white/20 rounded-lg p-3 text-center w-20">
-    <div className="text-3xl font-bold">{String(value).padStart(2, "0")}</div>
-    <div className="text-xs uppercase tracking-wider">{label}</div>
+  <div className="bg-white/20 rounded-lg p-2.5 text-center w-16">
+    <div className="text-2xl font-bold">{String(value).padStart(2, "0")}</div>
+    <div className="text-[10px] uppercase tracking-wider">{label}</div>
   </div>
 );
 
@@ -60,11 +60,11 @@ const OfferPopup: React.FC<OfferPopupProps> = ({ onClose, onCtaClick }) => {
 
   return (
     <div
-      className="fixed inset-0 pt-20 bg-black bg-opacity-70 z-50 flex justify-center items-center p-2 animate-fade-in"
+      className="fixed inset-0 pt-30 bg-black bg-opacity-70 z-50 flex justify-center items-center p-2 animate-fade-in"
       aria-modal="true"
       role="dialog"
     >
-      <div className="bg-linear-to-br from-[#FE6B8B] to-[#FF8E53] text-white rounded-2xl shadow-xl max-w-lg w-full relative transform transition-all opacity-0 animate-scale-in font-sans">
+      <div className="bg-linear-to-br from-[#FE6B8B] to-[#FF8E53] text-white rounded-xl shadow-xl max-w-sm w-full relative transform transition-all opacity-0 animate-scale-in font-sans">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-white/70 hover:text-white transition-colors bg-white/20 hover:bg-white/30 rounded-full p-1.5"
@@ -73,33 +73,33 @@ const OfferPopup: React.FC<OfferPopupProps> = ({ onClose, onCtaClick }) => {
           <CloseIcon className="w-5 h-5" />
         </button>
 
-        <div className="p-8 md:p-12 text-center">
-          <div className="inline-block bg-white text-red-500 text-sm font-bold px-4 py-1.5 rounded-full mb-6 shadow-md">
+        <div className="p-5 md:p-6 text-center">
+          <div className="inline-block bg-white text-red-500 text-xs font-bold px-3 py-1 rounded-full mb-4 shadow-md">
             ⚡️ FLASH SALE
           </div>
 
-          <h1 className="font-serif font-semibold text-7xl md:text-8xl text-white drop-shadow-lg">
+          <h1 className="font-serif font-semibold text-5xl md:text-6xl text-white drop-shadow-lg">
             90%
-            <span className="block text-5xl md:text-6xl -mt-2">OFF</span>
+            <span className="block text-3xl md:text-4xl -mt-2">OFF</span>
           </h1>
 
-          <h2 className="text-2xl font-bold mt-4 mb-2">
+          <h2 className="text-lg font-bold mt-3 mb-2">
             Biggest Sale of the Year!
           </h2>
           <div className="mb-8">
-            <p className="text-sm text-white/90 mb-2">
+            <p className="text-xs text-white/90 mb-2">
               Use this coupon code at checkout:
             </p>
             <div
-              className="inline-block border-2 border-dashed border-white/50 rounded-lg py-2 px-6 bg-white/10 cursor-pointer transition-colors hover:bg-white/20"
+              className="inline-block border-2 border-dashed border-white/50 rounded-lg py-1.5 px-4 bg-white/10 cursor-pointer transition-colors hover:bg-white/20"
               onClick={() => navigator.clipboard.writeText("CEDO")}
               title="Click to copy"
             >
-              <span className="text-3xl font-bold tracking-widest">CEDO</span>
+              <span className="text-2xl font-bold tracking-widest">CEDO</span>
             </div>
           </div>
 
-          <div className="flex justify-center items-center space-x-3 sm:space-x-4 mb-8">
+          <div className="flex justify-center items-center space-x-2 sm:space-x-3 mb-6">
             <CountdownUnit value={timeLeft.hours} label="Hours" />
             <CountdownUnit value={timeLeft.minutes} label="Minutes" />
             <CountdownUnit value={timeLeft.seconds} label="Seconds" />
@@ -107,7 +107,7 @@ const OfferPopup: React.FC<OfferPopupProps> = ({ onClose, onCtaClick }) => {
 
           <form
             onSubmit={handleSubmit}
-            className="flex flex-col sm:flex-row gap-3"
+            className="flex flex-col sm:flex-row gap-2"
           >
             <input
               type="email"
@@ -115,17 +115,17 @@ const OfferPopup: React.FC<OfferPopupProps> = ({ onClose, onCtaClick }) => {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email"
               required
-              className="w-full grow px-5 py-3 border border-transparent rounded-full shadow-inner placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white/50 text-black text-center sm:text-left"
+              className="w-full grow px-4 py-2.5 border border-transparent rounded-full shadow-inner placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white/50 text-black text-center sm:text-left text-sm"
               aria-label="Enter your email"
             />
             <button
               type="submit"
-              className="bg-brand-dark text-white px-8 py-3 rounded-full hover:bg-gray-800 transition-colors font-semibold text-md shadow-lg"
+              className="bg-brand-dark text-white px-6 py-2.5 rounded-full hover:bg-gray-800 transition-colors font-semibold text-sm shadow-lg"
             >
               Claim Deal
             </button>
           </form>
-          <p className="text-xs text-white/70 mt-4">
+          <p className="text-[10px] text-white/70 mt-3">
             *Offer valid for new subscribers only. Terms apply.
           </p>
         </div>
