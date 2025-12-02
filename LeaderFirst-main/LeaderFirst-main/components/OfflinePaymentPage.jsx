@@ -20,12 +20,52 @@ const OfflinePaymentPage = () => {
   const [bankName, setBankName] = useState("");
   const [paymentDate, setPaymentDate] = useState("");
   const [note, setNote] = useState("");
+
+  const [referralCode, setReferralCode] = useState("");
+  const [referralValid, setReferralValid] = useState(null); // null | true | false
+  const [referralInfo, setReferralInfo] = useState(null);
+  const [checkingReferral, setCheckingReferral] = useState(false);
+
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [showReviewModal, setShowReviewModal] = useState(false);
 
-  const amount = PLAN_AMOUNT[planKey] || PLAN_AMOUNT.core;
+  const baseAmount = PLAN_AMOUNT[planKey] || PLAN_AMOUNT.core;
+  const [effectiveAmount, setEffectiveAmount] = useState(baseAmount);
+
+  const baseUrl = import.meta.env.VITE_API_BASE;
+
+  const handleValidateReferral = async () => {
+    if (!referralCode.trim()) return;
+    setCheckingReferral(true);
+    setError("");
+    try {
+      const res = await fetch(`${baseUrl}/api/referrals/validate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: referralCode }),
+      });
+      const data = await res.json();
+      if (res.ok && data.valid) {
+        setReferralValid(true);
+        setReferralInfo(data);
+
+        const discount = data.discountPercent || 0;
+        const discounted = Math.round(baseAmount * (1 - discount / 100));
+        setEffectiveAmount(discounted);
+      } else {
+        setReferralValid(false);
+        setReferralInfo(null);
+        setEffectiveAmount(baseAmount);
+      }
+    } catch {
+      setReferralValid(false);
+      setReferralInfo(null);
+      setEffectiveAmount(baseAmount);
+    }
+    setCheckingReferral(false);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -38,9 +78,19 @@ const OfflinePaymentPage = () => {
       return;
     }
 
+    if (!planKey || !baseAmount || !txId || !name) {
+      setError("Name, plan, amount and transaction ID are required.");
+      return;
+    }
+
+    // Only block if we already know the code is invalid
+    if (referralCode && referralValid === false) {
+      setError("Please apply a valid referral code or clear the field.");
+      return;
+    }
+
     try {
       setSubmitting(true);
-      const baseUrl = import.meta.env.VITE_API_BASE;
       const res = await fetch(`${baseUrl}/api/offline-payments`, {
         method: "POST",
         headers: {
@@ -50,11 +100,12 @@ const OfflinePaymentPage = () => {
         body: JSON.stringify({
           name,
           planKey,
-          amount,
+          amount: baseAmount, // original amount; backend has discountPercent
           txId,
           bankName,
           paymentDate,
           note,
+          referralCode: referralValid ? referralCode : null,
         }),
       });
 
@@ -68,6 +119,10 @@ const OfflinePaymentPage = () => {
       setBankName("");
       setPaymentDate("");
       setNote("");
+      setReferralCode("");
+      setReferralValid(null);
+      setReferralInfo(null);
+      setEffectiveAmount(baseAmount);
       setShowReviewModal(true);
     } catch (err) {
       setError(err.message || "Failed to submit payment");
@@ -76,7 +131,6 @@ const OfflinePaymentPage = () => {
     }
   };
 
-  // Prevent Enter from submitting the form
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
       const tag = e.target.tagName.toLowerCase();
@@ -100,9 +154,10 @@ const OfflinePaymentPage = () => {
             Bank Transfer Details
           </h2>
           <p className="text-sm text-gray-600 leading-relaxed">
-            Please pay <b>${amount}</b> for the <b>{displayPlanName} plan</b>{" "}
-            using the bank details or QR code below, then submit the form with
-            your transaction reference so our team can verify it.
+            Please pay <b>${effectiveAmount}</b> for the{" "}
+            <b>{displayPlanName} plan</b> using the bank details or QR code
+            below, then submit the form with your transaction reference so our
+            team can verify it.
           </p>
           <div className="border rounded-lg p-4 text-sm space-y-1 bg-gray-50">
             <p>
@@ -166,13 +221,19 @@ const OfflinePaymentPage = () => {
 
             <div>
               <label className="block mb-1 font-medium text-gray-800">
-                Amount Paid (USD)
+                Amount Payable (USD)
               </label>
               <input
                 className="w-full border rounded px-3 py-2 bg-gray-100 text-gray-700"
-                value={amount}
+                value={effectiveAmount}
                 readOnly
               />
+              {referralValid && referralInfo?.discountPercent && (
+                <p className="text-[11px] text-green-600 mt-1">
+                  Original: ${baseAmount} • Discount:{" "}
+                  {referralInfo.discountPercent}% applied.
+                </p>
+              )}
             </div>
 
             <div>
@@ -209,6 +270,43 @@ const OfflinePaymentPage = () => {
                 value={paymentDate}
                 onChange={(e) => setPaymentDate(e.target.value)}
               />
+            </div>
+
+            {/* Referral Code */}
+            <div>
+              <label className="block mb-1 font-medium text-gray-800">
+                Referral Code (optional)
+              </label>
+              <div className="flex gap-2">
+                <input
+                  className="flex-1 border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black/70"
+                  value={referralCode}
+                  onChange={(e) => {
+                    setReferralCode(e.target.value.toUpperCase());
+                    // keep last valid state; don't auto set invalid here
+                  }}
+                  placeholder="Enter referral code"
+                />
+                <button
+                  type="button"
+                  onClick={handleValidateReferral}
+                  disabled={checkingReferral || !referralCode.trim()}
+                  className="px-3 py-2 rounded bg-gray-900 text-white text-xs font-semibold disabled:bg-gray-400"
+                >
+                  {checkingReferral ? "Checking..." : "Apply"}
+                </button>
+              </div>
+              {referralValid === true && (
+                <p className="text-xs text-green-600 mt-1">
+                  Valid code – {referralInfo?.discountPercent}% discount
+                  applied.
+                </p>
+              )}
+              {referralValid === false && (
+                <p className="text-xs text-red-600 mt-1">
+                  Invalid or already used referral code.
+                </p>
+              )}
             </div>
 
             <div>

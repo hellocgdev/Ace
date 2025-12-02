@@ -1,6 +1,8 @@
 // routes/paymentRequestRoutes.js
 import express from "express";
 import PaymentRequest from "../models/paymentRequest.js";
+import ReferralCode from "../models/referralCode.js";
+import { markReferralUsed } from "../controller/referralCodeController.js";
 import { requireAuth, requireRole } from "../middleware/auth.js";
 
 const router = express.Router();
@@ -8,13 +10,48 @@ const router = express.Router();
 // user submits offline payment form
 router.post("/", requireAuth, async (req, res) => {
   try {
-    const { name, planKey, amount, txId, bankName, paymentDate, note } =
-      req.body;
+    const {
+      name,
+      planKey,
+      amount,
+      txId,
+      bankName,
+      paymentDate,
+      note,
+      referralCode, // optional
+    } = req.body;
 
     if (!planKey || !amount || !txId || !name) {
       return res
         .status(400)
-        .json({ message: "Name, plan, amount and transaction ID are required" });
+        .json({
+          message: "Name, plan, amount and transaction ID are required",
+        });
+    }
+
+    let normalizedCode = null;
+    let referralDiscountPercent = null;
+
+    if (referralCode && referralCode.trim()) {
+      normalizedCode = referralCode.trim().toUpperCase();
+
+      const referral = await ReferralCode.findOne({
+        code: normalizedCode,
+        active: true,
+      });
+
+      // if already used or not found, block immediately
+      if (!referral || referral.redemptions >= referral.maxRedemptions) {
+        return res
+          .status(400)
+          .json({ message: "Invalid or already used referral code" });
+      }
+
+      referralDiscountPercent = referral.discountPercent;
+
+      // IMPORTANT: mark as used right now so nobody else can use it
+      await markReferralUsed(normalizedCode, req.user._id, null);
+      // passing null for paymentId because PaymentRequest is not created yet
     }
 
     const payment = await PaymentRequest.create({
@@ -27,32 +64,31 @@ router.post("/", requireAuth, async (req, res) => {
       bankName,
       paymentDate: paymentDate ? new Date(paymentDate) : undefined,
       note,
+      referralCode: normalizedCode,
+      referralDiscountPercent,
     });
 
     res.status(201).json(payment);
   } catch (err) {
+    console.error("paymentRequest POST error:", err);
     res.status(500).json({ message: "Failed to submit payment" });
   }
 });
 
 // admin: list all pending
-router.get(
-  "/pending",
-  requireAuth,
-  requireRole("admin"),
-  async (req, res) => {
-    try {
-      const list = await PaymentRequest.find({ status: "pending" })
-        .sort({ createdAt: -1 })
-        .populate("user", "email name role");
-      res.json(list);
-    } catch {
-      res.status(500).json({ message: "Failed to load payments" });
-    }
+router.get("/pending", requireAuth, requireRole("admin"), async (req, res) => {
+  try {
+    const list = await PaymentRequest.find({ status: "pending" })
+      .sort({ createdAt: -1 })
+      .populate("user", "email name role");
+    res.json(list);
+  } catch (err) {
+    console.error("paymentRequest GET /pending error:", err);
+    res.status(500).json({ message: "Failed to load payments" });
   }
-);
+});
 
-// admin: approve or reject
+// admin: approve or reject (no referral logic here)
 router.patch(
   "/:id/review",
   requireAuth,
@@ -65,13 +101,10 @@ router.patch(
       );
       if (!payment) return res.status(404).json({ message: "Not found" });
       if (payment.status !== "pending") {
-        return res
-          .status(400)
-          .json({ message: "Payment already reviewed" });
+        return res.status(400).json({ message: "Payment already reviewed" });
       }
 
       if (action === "approve") {
-        // activate plan for user
         const { PLAN_CONFIG } = await import("../config/plans.js");
         const plan = PLAN_CONFIG[payment.planKey];
         if (!plan) {
@@ -104,6 +137,7 @@ router.patch(
 
       res.json(payment);
     } catch (err) {
+      console.error("paymentRequest PATCH /:id/review error:", err);
       res.status(500).json({ message: "Failed to review payment" });
     }
   }

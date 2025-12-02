@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { MenuIcon, CloseIcon } from "./icons/Icons";
 import { api } from "../lib/api";
 import DonationPage from "./CharityPage";
-
+import ReferFriendModal from "./ReferFriendModal";
 const categoryItems = [
   { label: "Leadership", description: "Leading teams, strategy & vision." },
   { label: "Technology", description: "AI, products & digital change." },
@@ -22,6 +22,7 @@ const Header = ({ currentUser, onLogout }) => {
   // Dropdown Logic
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const timeoutRef = useRef(null);
+  const [showRefer, setShowRefer] = useState(false);
 
   const navigate = useNavigate();
 
@@ -150,7 +151,7 @@ const Header = ({ currentUser, onLogout }) => {
       >
         Horoscope
       </Link>
-      
+
       {/* Mega Dropdown Trigger */}
       <div
         className="relative h-full flex items-center"
@@ -261,6 +262,15 @@ const Header = ({ currentUser, onLogout }) => {
             <span className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider bg-blue-50 text-blue-600 rounded-md border border-blue-100">
               {planName}
             </span>
+          )}
+          {planActive && (
+            <button
+              type="button"
+              onClick={() => setShowRefer(true)}
+              className="ml-1 px-3 py-1.5 text-[11px] font-semibold rounded-md border border-brand-teal text-brand-teal hover:bg-brand-teal  transition"
+            >
+              Refer a friend
+            </button>
           )}
         </div>
       )}
@@ -379,15 +389,18 @@ const Header = ({ currentUser, onLogout }) => {
             </div>
           </div>
         </div>
+
         {/* Media & Partnership Banner */}
-        <div className="w-full mt-4  bg-gray-800 text-white text-center py-1 text-xs font-serif tracking-widest font-medium">
-          For Media-Partnership Queries & To Get Featured,{' '}
-          <Link
-            to="/pricing-page"
-            className="underline decoration-white/50 underline-offset-4 hover:decoration-white"
-          >
-            Click Here
-          </Link>
+        <div className="pt-1">
+          <div className="w-full   bg-gray-800 text-white text-center py-1 text-xs font-serif tracking-widest font-medium">
+            For Media-Partnership Queries & To Get Featured,{" "}
+            <Link
+              to="/pricing-page"
+              className="underline decoration-white/50 underline-offset-4 hover:decoration-white"
+            >
+              Click Here
+            </Link>
+          </div>
         </div>
       </header>
 
@@ -434,8 +447,8 @@ const Header = ({ currentUser, onLogout }) => {
         className={`fixed bottom-0 left-0 right-0 z-100 lg:top-[calc(100%-(--spacing(10)))] lg:bottom-auto transition-transform duration-300 ${
           isMenuOpen ? "hidden" : ""
         }`}
-      >
-      </div>
+      ></div>
+      <ReferFriendModal open={showRefer} onClose={() => setShowRefer(false)} />
     </>
   );
 };
