@@ -1,32 +1,32 @@
 import { useEffect, useState } from "react";
 import Insights from "./Insights";
-import OfferPopup from "./OfferPopUp";
+// import OfferPopup from "./OfferPopUp";
 import TodaysMix from "./TodaysMix";
 import NewsLetterBand from "./NewsLetterBand";
 
 const HomePage = ({ posts, currentUser }) => {
-  const [showOffer, setShowOffer] = useState(false);
+  // const [showOffer, setShowOffer] = useState(false);
 
-  useEffect(() => {
-    // Prevent repeat during the same tab session
-    const dismissed = sessionStorage.getItem("offer:dismissed") === "1";
-    if (dismissed) return;
+  // useEffect(() => {
+  //   // Prevent repeat during the same tab session
+  //   const dismissed = sessionStorage.getItem("offer:dismissed") === "1";
+  //   if (dismissed) return;
 
-    const t = setTimeout(() => setShowOffer(true), 2000); // show after 2s
-    return () => clearTimeout(t);
-  }, []);
+  //   const t = setTimeout(() => setShowOffer(true), 2000); // show after 2s
+  //   return () => clearTimeout(t);
+  // }, []);
 
-  const handleCloseOffer = () => {
-    sessionStorage.setItem("offer:dismissed", "1");
-    setShowOffer(false);
-  };
+  // const handleCloseOffer = () => {
+  //   sessionStorage.setItem("offer:dismissed", "1");
+  //   setShowOffer(false);
+  // };
 
-  const handleCtaOffer = () => {
-    sessionStorage.setItem("offer:dismissed", "1");
-    setShowOffer(false);
-    // Add CTA flow (navigate, open modal, etc.)
-    // e.g., window.location.href = "/subscribe";
-  };
+  // const handleCtaOffer = () => {
+  //   sessionStorage.setItem("offer:dismissed", "1");
+  //   setShowOffer(false);
+  //   // Add CTA flow (navigate, open modal, etc.)
+  //   // e.g., window.location.href = "/subscribe";
+  // };
 
   // Use top 3 by viewCount as Editor’s Picks for now
   const editorsPickArticles = posts
@@ -49,9 +49,9 @@ const HomePage = ({ posts, currentUser }) => {
       {/* <TrendingStrip articles={trendingArticles} /> */}
       {/* <CtaSection currentUser={currentUser} /> */}
       <NewsLetterBand onSubmit={undefined} />
-      {showOffer && (
+      {/* {showOffer && (
         <OfferPopup onClose={handleCloseOffer} onCtaClick={handleCtaOffer} />
-      )}
+      )} */}
     </main>
   );
 };

@@ -33,6 +33,26 @@ const plansData = [
 
 const FaqItem = ({ question, answer }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [showOffer, setShowOffer] = useState(false);
+
+  useEffect(() => {
+    const dismissed = sessionStorage.getItem("offer:dismissed") === "1";
+    if (dismissed) return;
+
+    const t = setTimeout(() => setShowOffer(true), 2000);
+    return () => clearTimeout(t);
+  }, []);
+
+  const handleCloseOffer = () => {
+    sessionStorage.setItem("offer:dismissed", "1");
+    setShowOffer(false);
+  };
+
+  const handleCtaOffer = () => {
+    sessionStorage.setItem("offer:dismissed", "1");
+    setShowOffer(false);
+    // add pricing CTA flow if needed
+  };
 
   return (
     <div className="border-b border-gray-200 py-4">
@@ -490,6 +510,9 @@ const PricingPage = () => {
           </div>
         </div>
       </section>
+      {showOffer && (
+        <OfferPopup onClose={handleCloseOffer} onCtaClick={handleCtaOffer} />
+      )}
     </div>
   );
 };

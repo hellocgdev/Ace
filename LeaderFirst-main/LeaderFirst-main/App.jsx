@@ -122,7 +122,7 @@ function AppInner() {
             }
           />
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/pricing-page" element={<PricingPage />} />
+          <Route path="/pricing" element={<PricingPage />} />
           <Route path="/payment" element={<OfflinePaymentPage />} />
           <Route path="/rephrase" element={<RephraserPage />} />
           <Route path="/donations" element={<DonationSection />} />

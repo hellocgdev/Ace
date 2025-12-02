@@ -278,7 +278,7 @@ const Header = ({ currentUser, onLogout }) => {
       <div className="flex items-center gap-4 text-md font-medium font-serif">
         {/* Pricing visible to all users (logged in or not) */}
         <Link
-          to="/pricing-page"
+          to="/pricing"
           className="text-[#0D1126] hover:text-black transition-colors"
         >
           Pricing
